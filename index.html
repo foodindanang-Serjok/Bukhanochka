@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"/>
+  <meta name="theme-color" content="#0d0d1f"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="Буханочка"/>
+  <link rel="apple-touch-icon" href="apple-touch-icon.png"/>
+  <title>Буханочка</title>
+  <link rel="manifest" href="manifest.json"/>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { touch-action: none; overflow: hidden; height: 100%; }
+    body {
+      background: #0d0d1f;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100dvh;
+      font-family: sans-serif;
+      overflow: hidden;
+      touch-action: none;
+    }
+    #hud {
+      display: flex;
+      justify-content: space-between;
+      width: 360px;
+      padding: 6px 4px;
+      color: #cc99ff;
+      font-size: 14px;
+    }
+    #hud span { font-size: 18px; font-weight: bold; color: #fff; }
+    #canvas { display: block; border-radius: 12px; touch-action: none; }
+    #controls { display: flex; gap: 24px; margin-top: 12px; }
+    .btn-arrow {
+      width: 64px; height: 64px; font-size: 28px;
+      border-radius: 16px; border: 2px solid #7733cc;
+      background: rgba(170,102,255,0.15); color: #fff;
+      cursor: pointer; user-select: none;
+      display: flex; align-items: center; justify-content: center;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-arrow:active { background: rgba(170,102,255,0.4); }
+    #overlay {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: flex-end;
+      background: rgba(0,0,0,0.45);
+    }
+    #overlay-cover {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      z-index: 0;
+    }
+    #overlay-content {
+      position: relative; z-index: 1;
+      display: flex; flex-direction: column;
+      align-items: center;
+      padding-bottom: 48px;
+    }
+    #overlay button {
+      padding: 14px 48px;
+      font-size: 20px; font-weight: bold;
+      border-radius: 14px; border: none;
+      background: #ff6600; color: #fff;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(255,100,0,0.5);
+      letter-spacing: 1px;
+    }
+    #overlay button:active { background: #cc4400; }
+    #level-badge { font-size: 13px; color: #ffdd44; margin-top: 6px; }
+  </style>
+</head>
+<body>
+
+<div id="hud">
+  <div>Счёт<br><span id="score-val">0</span></div>
+  <div id="level-badge">УРОВЕНЬ 1</div>
+  <div style="text-align:right">Жизни<br><span id="lives-val">❤️❤️❤️</span></div>
+</div>
+
+<canvas id="canvas" width="360" height="480"></canvas>
+
+<div id="controls">
+  <div class="btn-arrow" id="btn-left">◀</div>
+  <div class="btn-arrow" id="btn-right">▶</div>
+</div>
+
+<div id="overlay">
+  <img id="overlay-cover" src="cover.png" alt="Буханочка"/>
+  <div id="overlay-content">
+    <button id="btn-start">▶ ПОЕХАЛИ!</button>
+  </div>
+</div>
+
+<script src="game.js"></script>
+<script>
+  document.addEventListener('touchstart', e => {
+    if (e.touches.length > 1) e.preventDefault();
+  }, { passive: false });
+  let lastTap = 0;
+  document.addEventListener('touchend', e => {
+    const now = Date.now();
+    if (now - lastTap < 300) e.preventDefault();
+    lastTap = now;
+  }, { passive: false });
+  document.addEventListener('gesturestart', e => e.preventDefault());
+  document.addEventListener('gesturechange', e => e.preventDefault());
+  document.addEventListener('gestureend', e => e.preventDefault());
+</script>
+</body>
+</html>
