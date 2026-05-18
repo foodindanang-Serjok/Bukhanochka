@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=109275003', 'ym');
+    ym(109275003, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/109275003" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>БУХАНОЧКА — Аркадная игра</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323:wght@400&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --neon-yellow: #FFE600;
+  --neon-pink:   #FF2D78;
+  --neon-cyan:   #00F5FF;
+  --neon-green:  #39FF14;
+  --dark:        #06040F;
+  --dark2:       #0D0820;
+  --pixel:       'Press Start 2P', monospace;
+  --vt:          'VT323', monospace;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+* { scroll-behavior: smooth; }
+
+body {
+  background: var(--dark);
+  color: #fff;
+  font-family: var(--vt);
+  overflow-x: hidden;
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Crect x='8' y='0' width='4' height='20' fill='%23FFE600'/%3E%3Crect x='0' y='8' width='20' height='4' fill='%23FFE600'/%3E%3C/svg%3E") 10 10, crosshair;
+}
+
+/* ========== ФОНОВАЯ СЕТКА ========== */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(rgba(0,245,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,245,255,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+
+/* ========== СКАН-ЛИНИИ ========== */
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 1;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.15) 2px,
+    rgba(0,0,0,0.15) 4px
+  );
+  pointer-events: none;
+}
+
+section, header, footer { position: relative; z-index: 2; }
+
+/* ========== ХЕДЕР / ГЕРОЙ ========== */
+header {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.stars {
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 10% 15%, #fff 0%, transparent 100%),
+    radial-gradient(1px 1px at 30% 40%, #fff 0%, transparent 100%),
+    radial-gradient(1px 1px at 55% 20%, #fff 0%, transparent 100%),
+    radial-gradient(1px 1px at 75% 60%, #fff 0%, transparent 100%),
+    radial-gradient(1px 1px at 90% 10%, #fff 0%, transparent 100%),
+    radial-gradient(1px 1px at 20% 80%, #fff 0%, transparent 100%),
+    radial-gradient(1px 1px at 65% 85%, #fff 0%, transparent 100%),
+    radial-gradient(2px 2px at 45% 50%, rgba(0,245,255,0.6) 0%, transparent 100%),
+    radial-gradient(2px 2px at 85% 35%, rgba(255,46,120,0.6) 0%, transparent 100%);
+  animation: twinkle 4s ease-in-out infinite alternate;
+}
+@keyframes twinkle {
+  from { opacity: 0.6; }
+  to   { opacity: 1; }
+}
+
+/* INSERT COIN анимация */
+.insert-coin {
+  font-family: var(--pixel);
+  font-size: 11px;
+  color: var(--neon-yellow);
+  letter-spacing: 3px;
+  animation: blink 1s step-end infinite;
+  margin-bottom: 28px;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+/* Логотип */
+.logo-wrap {
+  position: relative;
+  margin-bottom: 8px;
+}
+.logo {
+  font-family: var(--pixel);
+  font-size: clamp(28px, 7vw, 56px);
+  line-height: 1.3;
+  color: var(--neon-yellow);
+  text-shadow:
+    0 0 10px var(--neon-yellow),
+    0 0 30px var(--neon-yellow),
+    0 0 60px rgba(255,230,0,0.4),
+    4px 4px 0 #a07800,
+    8px 8px 0 #604800;
+  animation: glitch 6s infinite;
+}
+@keyframes glitch {
+  0%, 92%, 100% { transform: translate(0); clip-path: none; }
+  93% { transform: translate(-3px, 0); clip-path: inset(10% 0 80% 0); color: var(--neon-cyan); }
+  94% { transform: translate(3px, 0); clip-path: inset(60% 0 10% 0); color: var(--neon-pink); }
+  95% { transform: translate(0); clip-path: none; color: var(--neon-yellow); }
+}
+
+.logo-sub {
+  font-family: var(--vt);
+  font-size: clamp(18px, 4vw, 28px);
+  color: var(--neon-cyan);
+  letter-spacing: 6px;
+  text-shadow: 0 0 12px var(--neon-cyan);
+  margin-bottom: 32px;
+}
+
+/* Анимированный микроавтобус */
+.bus-wrap {
+  font-size: 72px;
+  margin-bottom: 24px;
+  animation: drive 0.15s steps(2) infinite;
+  filter: drop-shadow(0 0 16px var(--neon-yellow));
+}
+@keyframes drive {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(-4px); }
+}
+
+/* Скорость / дорога под автобусом */
+.road-lines {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 40px;
+  overflow: hidden;
+  width: 200px;
+}
+.road-line {
+  width: 40px; height: 4px;
+  background: var(--neon-yellow);
+  opacity: 0.6;
+  animation: roadMove 0.3s linear infinite;
+}
+.road-line:nth-child(2) { animation-delay: -0.1s; }
+.road-line:nth-child(3) { animation-delay: -0.2s; }
+@keyframes roadMove {
+  from { transform: translateX(0); }
+  to   { transform: translateX(48px); }
+}
+
+/* CTA кнопка */
+.cta-wrap { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+
+.btn-play {
+  font-family: var(--pixel);
+  font-size: clamp(12px, 3vw, 16px);
+  padding: 16px 36px;
+  background: var(--neon-green);
+  color: #000;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  box-shadow:
+    0 0 0 4px #000,
+    0 0 0 6px var(--neon-green),
+    0 0 20px var(--neon-green),
+    4px 4px 0 #007800;
+  transition: transform 0.1s, box-shadow 0.1s;
+  animation: pulse-btn 2s ease-in-out infinite;
+}
+@keyframes pulse-btn {
+  0%, 100% { box-shadow: 0 0 0 4px #000, 0 0 0 6px var(--neon-green), 0 0 20px var(--neon-green), 4px 4px 0 #007800; }
+  50%       { box-shadow: 0 0 0 4px #000, 0 0 0 6px var(--neon-green), 0 0 50px var(--neon-green), 4px 4px 0 #007800; }
+}
+.btn-play:hover { transform: translate(-2px,-2px); }
+.btn-play:active { transform: translate(2px,2px); box-shadow: 0 0 0 4px #000, 0 0 0 6px var(--neon-green), 2px 2px 0 #007800; }
+
+.btn-donate {
+  font-family: var(--pixel);
+  font-size: clamp(9px, 2vw, 12px);
+  padding: 12px 28px;
+  background: transparent;
+  color: var(--neon-pink);
+  border: 3px solid var(--neon-pink);
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  box-shadow: 0 0 12px rgba(255,45,120,0.4), inset 0 0 12px rgba(255,45,120,0.05);
+  transition: all 0.15s;
+  letter-spacing: 1px;
+  margin-top: 16px;
+}
+.btn-donate:hover {
+  background: var(--neon-pink);
+  color: #fff;
+  box-shadow: 0 0 30px rgba(255,45,120,0.8);
+}
+
+.scroll-hint {
+  position: absolute; bottom: 24px;
+  font-family: var(--pixel);
+  font-size: 9px;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 2px;
+  animation: bounce 1.5s ease-in-out infinite;
+}
+@keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)} }
+
+/* ========== СЕКЦИИ ========== */
+.section {
+  padding: 80px 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.section-title {
+  font-family: var(--pixel);
+  font-size: clamp(14px, 3.5vw, 22px);
+  color: var(--neon-cyan);
+  text-shadow: 0 0 14px var(--neon-cyan);
+  margin-bottom: 48px;
+  text-align: center;
+  letter-spacing: 2px;
+}
+.section-title::before { content: '> '; color: var(--neon-green); }
+
+/* ========== ФИЧИ ========== */
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+}
+.feature {
+  border: 2px solid rgba(0,245,255,0.2);
+  padding: 28px 20px;
+  background: rgba(0,245,255,0.03);
+  position: relative;
+  transition: border-color 0.2s, background 0.2s;
+}
+.feature::before {
+  content: '';
+  position: absolute; top: -2px; left: -2px;
+  width: 16px; height: 16px;
+  border-top: 2px solid var(--neon-cyan);
+  border-left: 2px solid var(--neon-cyan);
+}
+.feature::after {
+  content: '';
+  position: absolute; bottom: -2px; right: -2px;
+  width: 16px; height: 16px;
+  border-bottom: 2px solid var(--neon-cyan);
+  border-right: 2px solid var(--neon-cyan);
+}
+.feature:hover {
+  border-color: rgba(0,245,255,0.5);
+  background: rgba(0,245,255,0.07);
+}
+.feature-icon { font-size: 40px; margin-bottom: 16px; display: block; }
+.feature-title {
+  font-family: var(--pixel);
+  font-size: 10px;
+  color: var(--neon-yellow);
+  margin-bottom: 10px;
+  line-height: 1.6;
+}
+.feature-desc {
+  font-family: var(--vt);
+  font-size: 20px;
+  color: rgba(255,255,255,0.65);
+  line-height: 1.4;
+}
+
+/* ========== УРОВНИ ========== */
+.levels {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.level-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  position: relative;
+}
+.level-num {
+  font-family: var(--pixel);
+  font-size: 10px;
+  color: var(--neon-pink);
+  min-width: 80px;
+  text-shadow: 0 0 8px var(--neon-pink);
+}
+.level-icon { font-size: 36px; min-width: 48px; text-align: center; }
+.level-info { flex: 1; }
+.level-name {
+  font-family: var(--pixel);
+  font-size: 10px;
+  color: #fff;
+  margin-bottom: 6px;
+  line-height: 1.6;
+}
+.level-desc {
+  font-family: var(--vt);
+  font-size: 20px;
+  color: rgba(255,255,255,0.5);
+}
+.level-speed {
+  font-family: var(--pixel);
+  font-size: 8px;
+  padding: 4px 8px;
+  border: 1px solid;
+  white-space: nowrap;
+}
+.speed-1 { color: var(--neon-green); border-color: var(--neon-green); }
+.speed-2 { color: var(--neon-yellow); border-color: var(--neon-yellow); }
+.speed-3 { color: #FF8C00; border-color: #FF8C00; }
+.speed-4 { color: var(--neon-pink); border-color: var(--neon-pink); }
+
+/* ========== СКРИНШОТ / ПРЕВЬЮ ========== */
+.preview-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 0 auto 48px;
+}
+.phone-frame {
+  width: 240px;
+  background: #111;
+  border-radius: 36px;
+  border: 3px solid rgba(255,230,0,0.3);
+  box-shadow:
+    0 0 0 6px #1a1a1a,
+    0 0 40px rgba(255,230,0,0.15),
+    0 0 80px rgba(0,245,255,0.1);
+  overflow: hidden;
+  position: relative;
+}
+.phone-screen {
+  background: #2d2d44;
+  aspect-ratio: 9/16;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  overflow: hidden;
+}
+/* анимированная дорога внутри телефона */
+.mini-road {
+  position: absolute; inset: 0;
+  background: #3a3a58;
+  width: 70%; left: 15%;
+}
+.mini-lines {
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: 200%;
+  background: repeating-linear-gradient(
+    to bottom, #fff 0px, #fff 20px, transparent 20px, transparent 40px
+  );
+  animation: miniRoad 0.4s linear infinite;
+  opacity: 0.4;
+}
+@keyframes miniRoad { from{top:-50%} to{top:0%} }
+.mini-car {
+  font-size: 36px;
+  position: relative; z-index: 2;
+  filter: drop-shadow(0 0 8px rgba(255,230,0,0.8));
+  animation: miniDrive 0.12s steps(2) infinite;
+}
+@keyframes miniDrive { 0%{transform:translateY(0)} 100%{transform:translateY(-3px)} }
+.mini-obs {
+  position: absolute;
+  font-size: 24px;
+  animation: fallDown 1.2s linear infinite;
+  z-index: 2;
+}
+.mini-obs:nth-child(3) { left: 20%; animation-delay: 0s; }
+.mini-obs:nth-child(4) { left: 60%; animation-delay: -0.6s; }
+@keyframes fallDown { from{top:-40px} to{top:110%} }
+
+/* ========== ДОНАТ ========== */
+.donate-section {
+  scroll-margin-top: 20px;
+  text-align: center;
+  padding: 80px 20px;
+  position: relative;
+}
+.donate-section::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center, rgba(255,45,120,0.08) 0%, transparent 70%);
+}
+.donate-amount {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 36px 0;
+}
+.amount-btn {
+  font-family: var(--pixel);
+  font-size: 11px;
+  padding: 14px 20px;
+  background: transparent;
+  color: #fff;
+  border: 2px solid rgba(255,255,255,0.2);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-decoration: none;
+  display: inline-block;
+}
+.amount-btn:hover, .amount-btn.active {
+  background: var(--neon-pink);
+  border-color: var(--neon-pink);
+  box-shadow: 0 0 20px rgba(255,45,120,0.6);
+  transform: translateY(-2px);
+}
+.donate-desc {
+  font-family: var(--vt);
+  font-size: 22px;
+  color: rgba(255,255,255,0.5);
+  max-width: 520px;
+  margin: 0 auto 36px;
+  line-height: 1.5;
+}
+.donate-final {
+  font-family: var(--pixel);
+  font-size: clamp(13px, 3vw, 18px);
+  padding: 18px 40px;
+  background: var(--neon-pink);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  box-shadow: 0 0 0 4px #000, 0 0 0 6px var(--neon-pink), 0 0 30px var(--neon-pink), 4px 4px 0 #800030;
+  transition: transform 0.1s;
+}
+.donate-final:hover { transform: translate(-2px,-2px); }
+
+/* ========== FOOTER ========== */
+footer {
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding: 40px 20px;
+  text-align: center;
+}
+.footer-logo {
+  font-family: var(--pixel);
+  font-size: 14px;
+  color: var(--neon-yellow);
+  text-shadow: 0 0 8px var(--neon-yellow);
+  margin-bottom: 12px;
+}
+.footer-copy {
+  font-family: var(--vt);
+  font-size: 18px;
+  color: rgba(255,255,255,0.3);
+}
+.footer-copy a { color: var(--neon-cyan); text-decoration: none; }
+
+/* ========== РАЗДЕЛИТЕЛЬ ========== */
+.divider {
+  text-align: center;
+  font-family: var(--pixel);
+  font-size: 9px;
+  color: rgba(255,255,255,0.1);
+  letter-spacing: 4px;
+  padding: 0 20px;
+  margin: 0;
+}
+
+/* ========== АНИМАЦИЯ ПОЯВЛЕНИЯ ========== */
+.fade-in {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ========== МОБИЛКА ========== */
+@media (max-width: 600px) {
+  .features { grid-template-columns: 1fr; }
+  .level-row { flex-wrap: wrap; }
+  .level-speed { margin-left: auto; }
+}
+
+/* ========== ДОНАТ КАРТОЧКИ ========== */
+.donate-methods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  margin: 32px 0 8px;
+}
+.donate-card {
+  background: rgba(255,255,255,0.03);
+  border: 2px solid rgba(255,255,255,0.1);
+  padding: 28px 24px;
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  transition: border-color 0.2s;
+}
+.donate-card::before {
+  content: '';
+  position: absolute; top: -2px; left: -2px;
+  width: 20px; height: 20px;
+  border-top: 2px solid var(--neon-pink);
+  border-left: 2px solid var(--neon-pink);
+}
+.donate-card::after {
+  content: '';
+  position: absolute; bottom: -2px; right: -2px;
+  width: 20px; height: 20px;
+  border-bottom: 2px solid var(--neon-pink);
+  border-right: 2px solid var(--neon-pink);
+}
+.donate-card-title {
+  font-family: var(--pixel);
+  font-size: 12px;
+  color: var(--neon-yellow);
+  text-shadow: 0 0 8px var(--neon-yellow);
+}
+.donate-card-desc {
+  font-family: var(--vt);
+  font-size: 19px;
+  color: rgba(255,255,255,0.5);
+  text-align: center;
+  line-height: 1.4;
+}
+.donate-method-btn {
+  font-family: var(--pixel);
+  font-size: 10px;
+  padding: 13px 18px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+  transition: all 0.15s;
+  line-height: 1.5;
+  margin-top: 4px;
+}
+.donate-method-btn.rub {
+  background: var(--neon-green);
+  color: #000;
+  box-shadow: 0 0 0 3px #000, 0 0 0 5px var(--neon-green), 0 0 18px var(--neon-green), 3px 3px 0 #007800;
+}
+.donate-method-btn.rub:hover {
+  transform: translate(-2px,-2px);
+  box-shadow: 0 0 0 3px #000, 0 0 0 5px var(--neon-green), 0 0 35px var(--neon-green), 3px 3px 0 #007800;
+}
+.donate-method-btn.usd {
+  background: transparent;
+  color: #009cde;
+  border: 2px solid #009cde;
+  box-shadow: 0 0 14px rgba(0,156,222,0.35), inset 0 0 10px rgba(0,156,222,0.05);
+}
+.donate-method-btn.usd:hover {
+  background: #009cde;
+  color: #fff;
+  box-shadow: 0 0 30px rgba(0,156,222,0.7);
+  transform: translate(-2px,-2px);
+}
+
+
+/* ========== УСТАНОВКА ========== */
+.play-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+}
+.btn-install-toggle {
+  font-family: var(--pixel);
+  font-size: 9px;
+  padding: 9px 20px;
+  background: transparent;
+  color: var(--neon-cyan);
+  border: 2px solid var(--neon-cyan);
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 0 10px rgba(0,245,255,0.2);
+}
+.btn-install-toggle:hover, .btn-install-toggle.open {
+  background: rgba(0,245,255,0.08);
+  box-shadow: 0 0 20px rgba(0,245,255,0.4);
+}
+.install-dropdown {
+  display: none;
+  flex-direction: column;
+  background: rgba(6,4,15,0.97);
+  border: 2px solid var(--neon-cyan);
+  box-shadow: 0 0 30px rgba(0,245,255,0.2), 0 8px 40px rgba(0,0,0,0.6);
+  padding: 20px;
+  width: 300px;
+  gap: 0;
+  animation: dropIn 0.2s ease;
+  position: relative;
+  z-index: 50;
+}
+@keyframes dropIn {
+  from { opacity:0; transform: translateY(-10px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+.install-dropdown.open { display: flex; }
+
+.install-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 16px;
+  border-bottom: 2px solid rgba(0,245,255,0.2);
+}
+.itab {
+  flex: 1;
+  font-family: var(--pixel);
+  font-size: 9px;
+  padding: 10px 6px;
+  background: transparent;
+  color: rgba(255,255,255,0.4);
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  letter-spacing: 1px;
+}
+.itab.active {
+  color: var(--neon-cyan);
+  border-bottom: 2px solid var(--neon-cyan);
+  margin-bottom: -2px;
+  text-shadow: 0 0 8px var(--neon-cyan);
+}
+.install-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.install-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-family: var(--vt);
+  font-size: 19px;
+  color: rgba(255,255,255,0.8);
+  line-height: 1.4;
+}
+.install-step b { color: var(--neon-yellow); font-style: normal; }
+.step-num {
+  font-family: var(--pixel);
+  font-size: 9px;
+  color: #000;
+  background: var(--neon-cyan);
+  min-width: 22px; height: 22px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.install-note {
+  font-family: var(--pixel);
+  font-size: 7px;
+  color: var(--neon-green);
+  text-shadow: 0 0 6px var(--neon-green);
+  line-height: 1.8;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+.btn-go-play {
+  font-family: var(--pixel);
+  font-size: 11px;
+  padding: 13px 20px;
+  background: var(--neon-green);
+  color: #000;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  box-shadow: 0 0 0 3px #000, 0 0 0 5px var(--neon-green), 0 0 16px var(--neon-green), 3px 3px 0 #007800;
+  transition: transform 0.1s;
+  margin-top: 8px;
+}
+.btn-go-play:hover { transform: translate(-2px,-2px); }
+
+.donate-hero-btn { width:100%; display:flex; justify-content:center; align-items:center; padding:32px 20px; }
+</style>
+</head>
+<body>
+
+<!-- ===== ГЕРОЙ ===== -->
+<header>
+  <div class="stars"></div>
+
+  <div class="insert-coin">— INSERT COIN —</div>
+
+  <div class="logo-wrap">
+    <div class="logo">🚐 БУХАНОЧКА</div>
+  </div>
+  <div class="logo-sub">ARCADE EDITION</div>
+
+  <div class="bus-wrap">🚐</div>
+  <div class="road-lines">
+    <div class="road-line"></div>
+    <div class="road-line"></div>
+    <div class="road-line"></div>
+    <div class="road-line"></div>
+  </div>
+
+  <div class="cta-wrap">
+    <div class="play-wrap">
+      <a href="#donate" class="btn-donate">♥ ПОДДЕРЖАТЬ РАЗРАБОТЧИКА</a>
+      <button class="btn-play" id="btn-play-main" onclick="toggleInstall(event)">📲 УСТАНОВИТЬ БЕСПЛАТНО</button>
+
+      <div class="install-dropdown" id="install-dropdown">
+        <div class="install-tabs">
+          <button class="itab active" onclick="switchTab(event,'ios')">🍎 iPhone</button>
+          <button class="itab" onclick="switchTab(event,'android')">🤖 Android</button>
+        </div>
+
+        <div class="install-content" id="tab-ios">
+          <div class="install-step"><span class="step-num">1</span><span>Открой ссылку в <b>Safari</b> (не Chrome!)</span></div>
+          <div class="install-step"><span class="step-num">2</span><span>Нажми кнопку <b>Поделиться</b> — квадрат со стрелкой вверх ↑</span></div>
+          <div class="install-step"><span class="step-num">3</span><span>Выбери <b>«На экран домой»</b></span></div>
+          <div class="install-step"><span class="step-num">4</span><span>Нажми <b>«Добавить»</b> — иконка появится на рабочем столе</span></div>
+          <div class="install-note">✓ Работает без App Store · ✓ Офлайн режим · ✓ Без рекламы</div>
+        </div>
+
+        <div class="install-content" id="tab-android" style="display:none">
+          <div class="install-step"><span class="step-num">1</span><span>Открой ссылку в <b>Chrome</b></span></div>
+          <div class="install-step"><span class="step-num">2</span><span>Нажми <b>⋮</b> (три точки) в правом верхнем углу</span></div>
+          <div class="install-step"><span class="step-num">3</span><span>Выбери <b>«Добавить на главный экран»</b></span></div>
+          <div class="install-step"><span class="step-num">4</span><span>Нажми <b>«Установить»</b> — готово!</span></div>
+          <div class="install-note">✓ Работает без Play Store · ✓ Офлайн режим · ✓ Без рекламы</div>
+        </div>
+
+        <a href="https://foodindanang-serjok.github.io/Bukhanochka/" class="btn-go-play">▶ ОТКРЫТЬ ИГРУ</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-hint">▼ SCROLL ▼</div>
+</header>
+
+<div class="donate-hero-btn"><a href="#donate" class="btn-donate">♥ ПОДДЕРЖАТЬ РАЗРАБОТЧИКА</a></div>
+
+<div class="divider">· · · · · · · · · · · · · · · · · · · ·</div>
+
+<!-- ===== ПРЕВЬЮ ===== -->
+<section class="section fade-in">
+  <div class="section-title">ГЕЙМПЛЕЙ</div>
+  <div class="preview-wrap">
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="mini-road"></div>
+        <div class="mini-lines"></div>
+        <div class="mini-obs">🚗</div>
+        <div class="mini-obs">🚕</div>
+        <div class="mini-car">🚐</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ФИЧИ ===== -->
+<section class="section fade-in">
+  <div class="section-title">ЧТО ВНУТРИ</div>
+  <div class="features">
+    <div class="feature">
+      <span class="feature-icon">📱</span>
+      <div class="feature-title">РАБОТАЕТ КАК ПРИЛОЖЕНИЕ</div>
+      <div class="feature-desc">Установи на домашний экран — без App Store, без регистрации. Просто PWA.</div>
+    </div>
+    <div class="feature">
+      <span class="feature-icon">🎵</span>
+      <div class="feature-title">ЖИВАЯ МУЗЫКА</div>
+      <div class="feature-desc">Три оригинальных трека — каждый уровень своя атмосфера.</div>
+    </div>
+    <div class="feature">
+      <span class="feature-icon">⚡</span>
+      <div class="feature-title">4 УРОВНЯ БЕЗУМИЯ</div>
+      <div class="feature-desc">От спокойной дороги до снежной бури за рулём буханки.</div>
+    </div>
+    <div class="feature">
+      <span class="feature-icon">✈️</span>
+      <div class="feature-title">ОФЛАЙН РЕЖИМ</div>
+      <div class="feature-desc">Установил — играй хоть в самолёте. Интернет не нужен.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider">· · · · · · · · · · · · · · · · · · · ·</div>
+
+<!-- ===== УРОВНИ ===== -->
+<section class="section fade-in">
+  <div class="section-title">УРОВНИ</div>
+  <div class="levels">
+    <div class="level-row">
+      <div class="level-num">LVL 01</div>
+      <div class="level-icon">🛣️</div>
+      <div class="level-info">
+        <div class="level-name">ГОРОДСКАЯ ДОРОГА</div>
+        <div class="level-desc">Машины, пробки, первый адреналин. 30 секунд — ты справишься.</div>
+      </div>
+      <div class="level-speed speed-1">НОРМАЛЬНО</div>
+    </div>
+    <div class="level-row">
+      <div class="level-num">LVL 02</div>
+      <div class="level-icon">💩</div>
+      <div class="level-info">
+        <div class="level-name">ПОЛНЫЙ ХАОС</div>
+        <div class="level-desc">Машины + неожиданные препятствия на дороге. Не спрашивай.</div>
+      </div>
+      <div class="level-speed speed-2">БЫСТРО</div>
+    </div>
+    <div class="level-row">
+      <div class="level-num">LVL 03</div>
+      <div class="level-icon">🌵</div>
+      <div class="level-info">
+        <div class="level-name">ПУСТЫНЯ</div>
+        <div class="level-desc">Кактусы и змеи. Асфальта нет — только песок и инстинкты.</div>
+      </div>
+      <div class="level-speed speed-3">ОЧЕНЬ БЫСТРО</div>
+    </div>
+    <div class="level-row">
+      <div class="level-num">LVL 04</div>
+      <div class="level-icon">❄️</div>
+      <div class="level-info">
+        <div class="level-name">СНЕЖНЫЙ АД</div>
+        <div class="level-desc">Лёд, медведи, холод. Буханочка против стихии.</div>
+      </div>
+      <div class="level-speed speed-4">ВЫЖИВАЙ</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider">· · · · · · · · · · · · · · · · · · · ·</div>
+
+<!-- ===== ДОНАТ ===== -->
+<section class="donate-section" id="donate">
+  <div class="section-title">ПОДДЕРЖИ РАЗРАБОТЧИКА</div>
+  <div class="donate-desc">
+    Игра бесплатная. Но хорошая буханка требует бензина.<br/>
+    Если получил удовольствие — поддержи символически.
+  </div>
+  <div class="donate-desc">Выбери удобный способ — игра скажет спасибо 🚐</div>
+
+  <div class="donate-methods">
+
+    <!-- РУБЛИ -->
+    <div class="donate-card">
+      <div class="donate-card-title">🇷🇺 РУБЛИ</div>
+      <div class="donate-card-desc">Через Т-Банк — СБП, карта, любой банк</div>
+      <a href="https://www.tbank.ru/cf/5u7sVCo5kML" target="_blank" class="donate-method-btn rub">
+        ₽ ЗАДОНАТИТЬ В РУБЛЯХ
+      </a>
+    </div>
+
+    <!-- USD / EUR -->
+    <div class="donate-card">
+      <div class="donate-card-title">🌍 USD / EUR</div>
+      <div class="donate-card-desc">Через DonationAlerts — любая карта, любая страна</div>
+      <a href="https://www.donationalerts.com/r/koroteevs" target="_blank" class="donate-method-btn usd">
+        $ € ЗАДОНАТИТЬ В USD/EUR
+      </a>
+    </div>
+
+  </div>
+
+  <p style="margin-top:28px; font-family:var(--vt); font-size:18px; color:rgba(255,255,255,0.25);">
+    Каждый донат — новый уровень в следующей версии
+  </p>
+</section>
+
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="footer-logo">🚐 БУХАНОЧКА</div>
+  <div class="footer-copy">
+    Сделано с ❤️ ·
+    <a href="https://foodindanang-serjok.github.io/Bukhanochka/">Играть</a>
+  </div>
+  <div style="margin-top:16px; font-family:var(--pixel); font-size:8px; color:rgba(255,255,255,0.1); letter-spacing:2px;">
+    © 2026 · PRESS START TO CONTINUE
+  </div>
+</footer>
+
+<script>
+// Анимация появления секций
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.15 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// Выбор суммы доната
+document.querySelectorAll('.amount-btn').forEach(btn => {
+  btn.addEventListener('click', e => {
+    e.preventDefault();
+    document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+
+// Глитч на логотипе при наведении
+const logo = document.querySelector('.logo');
+logo.addEventListener('mouseover', () => {
+  logo.style.animationDuration = '0.3s';
+});
+logo.addEventListener('mouseout', () => {
+  logo.style.animationDuration = '6s';
+});
+
+
+
+// ===== ИНСТРУКЦИЯ УСТАНОВКИ =====
+function toggleInstall(e) {
+  e.stopPropagation();
+  const dd = document.getElementById('install-dropdown');
+  const isOpen = dd.classList.contains('open');
+  dd.classList.toggle('open', !isOpen);
+}
+
+function switchTab(e, tab) {
+  e.stopPropagation();
+  document.querySelectorAll('.itab').forEach(t => t.classList.remove('active'));
+  e.currentTarget.classList.add('active');
+  document.getElementById('tab-ios').style.display     = tab === 'ios'     ? 'flex' : 'none';
+  document.getElementById('tab-android').style.display = tab === 'android' ? 'flex' : 'none';
+}
+
+// Закрыть при клике вне
+document.addEventListener('click', e => {
+  const dd  = document.getElementById('install-dropdown');
+  const mainBtn = document.getElementById('btn-play-main');
+  if (dd && mainBtn && !dd.contains(e.target) && e.target !== mainBtn) {
+    dd.classList.remove('open');
+    mainBtn.classList.remove('open');
+  }
+});
+
+</script>
+</body>
+</html>
